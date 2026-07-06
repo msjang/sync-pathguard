@@ -4,3 +4,7 @@
 !.env.example
 *.local
 prj/meta.yml
+
+# Python
+__pycache__/
+*.py[cod]
