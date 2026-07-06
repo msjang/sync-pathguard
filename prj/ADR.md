@@ -28,10 +28,14 @@
 - 트레이/메뉴바: `fyne.io/systray` (맥 메뉴바 + 윈도우 트레이 공통)
 - NFD 정규화: `golang.org/x/text/unicode/norm`
 - 설정: `gopkg.in/yaml.v3`
-- 배포: `GOOS/GOARCH` 교차컴파일로 `darwin/arm64`, `darwin/amd64`, `windows/amd64` 각각 **단일 바이너리** 산출(런타임 의존성 0).
+- 배포: `darwin/arm64`, `darwin/amd64`, `windows/amd64` 각각 **단일 바이너리**(런타임 의존성 0).
 
 **결과**: 현행 `pathguard.py`의 스캔 로직을 Go로 이식. Python 버전은 참조/CLI로 당분간 유지.
 Rust 대비 트레이 이벤트 루프 구현이 단순. 맥은 필요 시 코드서명/공증은 후속 과제(ADR-0007 참조).
+
+**⚠️ 교차컴파일 정정**: systray는 **cgo**(Cocoa/GTK/Win32)라 "한 머신에서 전 타깃 교차컴파일"이 불가.
+따라서 **CI에서 OS별 네이티브 빌드**로 산출한다(macOS·Windows 러너 각각). 스캔/설정 엔진(순수 Go)은 교차컴파일 가능.
+초기 스택 가정(단순 GOOS/GOARCH)을 이 방식으로 대체(T-0014).
 
 ---
 

@@ -78,12 +78,32 @@ back under 255).
 
 ## Install & use
 
-Today it's a single, dependency-free Python 3 script.
+Two ways to run it (prebuilt signed binaries land with the first release):
+
+### Tray / menu-bar app (Go)
+
+Requires Go 1.25+. On first launch it writes a default config; **Settings…** in
+the menu opens it. Point `watch` at your synced folder, then use **Scan now** —
+the icon color shows the result and clicking an over-limit file reveals it in
+Finder/Explorer.
 
 ```bash
 git clone https://github.com/msjang/sync-pathguard.git
 cd sync-pathguard
+go run ./cmd/sync-pathguard      # or: scripts/build.sh → bin/sync-pathguard
+```
 
+Config file location:
+
+- macOS: `~/Library/Application Support/sync-pathguard/config.yml`
+- Windows: `%APPDATA%\sync-pathguard\config.yml`
+- Linux: `~/.config/sync-pathguard/config.yml`
+
+### CLI (Python)
+
+A dependency-free single script — handy for one-off checks, scripts, or CI.
+
+```bash
 python3 pathguard.py           # human-readable report
 python3 pathguard.py --json    # summary JSON (for scheduling/alerts)
 ```
@@ -97,6 +117,9 @@ PATHGUARD_REMOTE_PREFIX="/volume1/homes/johndoe/MyDocuments" \
 ```
 
 ## Configuration
+
+The tray app reads the YAML config above (schema in [`prj/ADR.md`](prj/ADR.md),
+ADR-0003). The Python CLI is configured by environment variables:
 
 | Variable (env) | Default | Meaning |
 |---|---|---|
