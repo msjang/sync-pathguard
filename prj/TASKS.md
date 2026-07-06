@@ -38,17 +38,20 @@
 
 ## 알림
 
-- **T-0011** `DONE` — 아이콘 색 5-state(`internal/trayicon`) + 전환 로직(우선순위 red>yellow>green,
-  경고 반영). ⚠️ 심볼은 **자체 렌더 자(ruler) placeholder** — 정식 FontAwesome ruler-horizontal 에셋·
-  CC BY 4.0 attribution·맥 template 처리는 남음(OBS-...-01). (ADR-0005)
+- **T-0011** `DONE` — 아이콘 색 5-state(`internal/trayicon`, 직접 그린 자: 외곽선 + 풀높이 눈금) +
+  전환 로직(우선순위 red>yellow>green, 경고 반영). FontAwesome 안 기각 → 외부 에셋/attribution 없음. (ADR-0005)
 - **T-0012** `TODO` — (선택) OS 네이티브 배너 병행: 맥 UserNotifications, 윈도우 toast. `notify.native_banner` 게이트. (ADR-0005)
 - **T-0013** `DONE` — 상태 요약 헤더(초과/경고 건수, "모두 정상") 노출. (ADR-0010)
 
 ## 배포
 
-- **T-0014** `TODO` — 릴리스 파이프라인: **OS별 네이티브 빌드**(systray=cgo라 교차컴파일 불가) —
-  macOS(arm64/amd64) .app/dmg, Windows .exe. 표시명 = `Sync Pathguard`, 식별자 = `sync-pathguard`. (ADR-0002, 0011)
-- **T-0015** `BLOCKED` — 맥 코드서명·공증, 윈도우 코드서명, 로그인 자동시작 등록. (ADR-0007, 인증서/계정 필요)
+- **T-0014** `DONE` — 릴리스 파이프라인(`release.yml`, v* 태그): OS별 네이티브 빌드 →
+  macOS `.app`(arm64/amd64 각각, `scripts/package-macos.sh`, LSUIElement, 표시명 `Sync Pathguard`),
+  Windows `.exe`(`-H=windowsgui`), Linux CLI 크로스빌드. GitHub Release 자동 첨부. (ADR-0002, 0011, 0012)
+  - 남음(선택): `.dmg` 포장(현재 zip), 태그 후 실제 릴리스 1회 검증.
+- **T-0015** `BLOCKED` — 맥 코드서명·공증, 윈도우 코드서명, 로그인 자동시작 등록. (ADR-0007, 0012, 인증서/계정 필요)
+- **T-0017** `TODO` — Homebrew 배포: 자체 tap(`homebrew-tap`)에 cask(앱)+formula(CLI) 등록
+  (템플릿 `packaging/homebrew/`). 릴리스 시 version/sha256 자동 갱신은 후속. 공식 cask는 공증(T-0015) 후. (ADR-0012)
 
 ## 정리
 

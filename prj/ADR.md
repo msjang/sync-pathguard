@@ -102,7 +102,9 @@ menu:
 **상태**: Accepted
 
 **맥락**: 사용자가 원한 방식은 "아이콘 색이 변하는" 저간섭 알림.
-아이콘 심볼은 FontAwesome **ruler-horizontal**(solid) — "길이 가드"라는 뜻과 맞음.
+아이콘 심볼은 자(ruler) — "길이 가드"라는 뜻과 맞음.
+**기각**: FontAwesome ruler-horizontal 에셋 사용안은 기각(CC BY 4.0 attribution 부담 회피).
+대신 `internal/trayicon`에서 **직접 그린** 자(외곽선 + 풀높이 눈금 5개)를 5색으로 렌더 — 라이선스 무관.
 
 **결정**: 단일 심볼(자)에 **색으로 5-state**를 표현한다. 결과 색(green/yellow/red)은
 초과(over)·경고(warn) **건수** 기준. 우선순위 **red > yellow > green**.
@@ -118,6 +120,7 @@ menu:
 - **경고 판정(파일 단위)**: `limits.warn_ratio`(기본 0.80 = 한계의 80%). 어떤 파일을 '경고'로 볼지 결정.
 - **아이콘 색(집계 단위)**: `notify.thresholds`의 yellow/red(초과 건수), warn(경고 건수).
 - 검사 중은 gray가 아니라 **blue**(애니메이션은 깔끔히 만들기 어려워 색상 상태로 대체).
+- 아이콘은 코드로 렌더(`internal/trayicon`, C 스타일 풀높이 눈금). 외부 에셋·attribution 없음.
 `notify.native_banner`가 켜져 있으면 건수 요약 배너를 병행(맥 UserNotifications, 윈도우 toast).
 
 **결과**: 심볼 1종 + 색 5종(gray/blue/green/yellow/red) 렌더 필요.
@@ -239,3 +242,21 @@ red일 때 "클릭→점프" 사라지던 구멍 해소. Linux reveal 한계는 
   (`~/Library/Application Support/sync-pathguard`, `%APPDATA%\sync-pathguard`), 번들 ID 요소.
 
 **결과**: 빌드/패키징 단계에서 표시명 메타데이터를 `Sync Pathguard`로 설정(T-0014). 식별자는 그대로.
+
+---
+
+## ADR-0012 — 패키징·배포 형식
+**상태**: Accepted
+
+**맥락**: 실제 배포물을 어떤 형태로 낼지. systray=cgo라 교차컴파일 불가(ADR-0002).
+
+**결정**:
+- **macOS**: `Sync Pathguard.app`(메뉴바 에이전트 → `LSUIElement=true`, Dock 아이콘 없음),
+  번들 ID `io.github.msjang.sync-pathguard`. **arch별 네이티브 빌드**(arm64=macos-14, amd64=macos-13 러너)로
+  각각 zip. 유니버설 lipo 대신 arch별 산출(교차 cgo 회피, 안정성 우선). 아이콘은 런타임 렌더라 `.icns` 불요.
+- **Windows**: `Sync Pathguard.exe`(`-ldflags -H=windowsgui`로 콘솔 창 숨김), CGO 불요(systray win32는 순수 Go).
+- **CLI(`pathguard`)**: 순수 Go → Linux amd64/arm64 크로스빌드 포함 전 OS.
+- **서명**: 초기 릴리스는 **미서명**(Gatekeeper/SmartScreen 경고). 서명·공증은 T-0015.
+- **배포 채널**: GitHub Release(자동) + Homebrew **자체 tap** 우선(cask=앱, formula=CLI). 공식 cask는 공증 후.
+
+**결과**: `.dmg`는 선택(현재 zip). 미서명이라 tap cask에서 `xattr` quarantine 제거로 임시 대응.
