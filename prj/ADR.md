@@ -70,6 +70,8 @@ exclude:               # 스캔 제외 이름 (모든 watch 공통, ADR-0008)
   - node_modules
 ui:
   language: auto        # auto(시스템 로케일) | en | ko  (ADR-0009)
+menu:
+  max_inline: 10        # 초과 건수 < 이 값이면 메뉴에 파일 트리 표시, 이상이면 리포트 열기 (ADR-0010)
 ```
 
 **결과**: `warn_ratio`, 다중 `watch` 등 현재 상수를 설정으로 승격. Python 상수 방식은 Superseded 예정.
@@ -83,11 +85,8 @@ ui:
 실시간 FS 감시(FSEvents/inotify)는 구현 부담이 크고, 이 문제는 초 단위 즉시성이 필요 없다.
 
 **결정**: 백그라운드 상주하며 **설정된 주기/시각에 폴링 스캔**한다.
-트레이/메뉴바 아이콘 클릭 시 메뉴로:
-- 감시 폴더 추가/선택,
-- 감시 주기·시각 설정,
-- 마지막 스캔 결과(초과·경고 건수) 확인,
-- 지금 스캔 / 설정 열기 / 종료.
+트레이/메뉴바 아이콘 클릭 시 메뉴로 상태 확인·즉시 스캔·설정·종료 등을 제공한다.
+구체적 메뉴 구조와 결과 탐색(reveal)은 **ADR-0010** 참조.
 
 **결과**: 실시간 감시는 범위 밖(ADR로 나중에 재검토 가능). 폴링이라 리소스 부담 낮음.
 
@@ -103,11 +102,12 @@ ui:
 
 | 상태 | 색 | 조건 |
 |---|---|---|
-| idle | gray | 실행 전 / 아직 스캔 안 함 |
+| idle / scanning | gray | 실행 전 · 검사 중 (툴팁으로 구분: "아직 검사 안 함" / "검사 중…") |
 | ok | green | 스캔 완료, 모든 파일이 길이 만족 (초과 0) |
 | warn | yellow | 초과 `>= thresholds.yellow` (기본 1) |
 | over | red | 초과 `>= thresholds.red` (기본 10) |
 
+5번째 색 대신 gray를 idle·scanning 공용으로 쓰고 **툴팁**으로 구분한다(향후 검사 중 애니메이션 옵션).
 임계값은 `conf.yml`(`notify.thresholds`)에서 수정 가능.
 `notify.native_banner`가 켜져 있으면 건수 요약 배너를 병행(맥 UserNotifications, 윈도우 toast).
 
@@ -174,3 +174,38 @@ FontAwesome Free는 CC BY 4.0 → 배포물에 attribution 필요(NOTES 참고).
 
 **결과**: README를 en/ko로 분리. "한글 전용"이 아니라 "NFD-safe filename guard"로 포지셔닝.
 Go 트레이 앱 단계에서 카탈로그 골격 마련.
+
+---
+
+## ADR-0010 — 트레이 메뉴 구조와 결과 탐색(reveal in Finder/Explorer)
+**상태**: Accepted
+
+**맥락**: 트레이 클릭 시 결과를 얼마나·어떻게 보여줄지. 사용자 요청:
+상태 요약 + 초과/경고를 서브메뉴 트리로, 파일 클릭 시 파일 매니저로 이동해 해당 파일 선택.
+
+**결정 — 메뉴 구성(위→아래)**:
+```
+sync-pathguard              (헤더, 비활성)
+⚠ 초과 3 · 경고 8           (상태 요약, 비활성, 색+문구)
+──────────
+초과 (n)        ▸           (n>0일 때만; n < menu.max_inline이면 파일 트리)
+경고 (n)        ▸
+──────────
+지금 검사  Scan now         (주기 스캔과 별개로 즉시 스캔)
+설정…      Settings…        (초기엔 conf.yml을 OS 기본 에디터로 열기)
+정보       About
+──────────
+나가기     Quit
+```
+
+**결정 — 결과 트리 & 탐색**:
+- 초과/경고 건수 `< menu.max_inline`(기본 10) → 파일 목록을 인라인 서브메뉴로.
+  각 항목 = 이름(+NFD 바이트). `>=`이면 거대 네이티브 서브메뉴 대신 **"전체 리포트 열기…"**(생성 HTML/txt).
+- 파일 항목 클릭 → 파일 매니저에서 **선택 표시(reveal)**:
+  - macOS: `open -R <path>`
+  - Windows: `explorer /select,"<path>"`
+  - Linux: 파일 선택 표준 없음 → 베스트에포트 폴더 열기(`xdg-open <dir>`), 가능하면 `nautilus/dolphin --select`.
+- 검사 중에는 아이콘 gray + 툴팁 "검사 중…"(ADR-0005).
+
+**결과**: 소량은 즉시 탐색, 다량은 리포트로. Linux reveal 한계는 OBS-20260707-05로 관리.
+`Settings…` 전용 UI는 후속 과제(당장은 에디터로 conf 열기).
