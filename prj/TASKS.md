@@ -27,7 +27,7 @@
 - **T-0007b** `TODO` — 메뉴 구조 구현: 상태요약 헤더 + 초과/경고 서브메뉴 트리 + Scan/Settings/About/Quit. (ADR-0010)
 - **T-0007c** `TODO` — 결과 탐색(reveal): 파일 항목 클릭 시 macOS `open -R` / Windows `explorer /select` / Linux 폴백. (ADR-0010, OBS-...-05)
 - **T-0007d** `TODO` — `Settings…`: conf.yml을 OS 기본 에디터로 열기(전용 UI는 후속). (ADR-0010)
-- **T-0007e** `TODO` — `지금 검사(Scan now)` + 검사 중 gray 아이콘·툴팁 "검사 중…". (ADR-0005, 0010)
+- **T-0007e** `TODO` — `지금 검사(Scan now)` + 검사 중 blue 아이콘. (ADR-0005, 0010)
 - **T-0007f** `TODO` — 결과 리포트 파일 생성(HTML/txt): 초과 `>= menu.max_inline`일 때 "전체 리포트 열기…". (ADR-0010)
 - **T-0008** `TODO` — 스케줄러: `schedule.interval`(+선택 `at`) 기준 폴링 스캔 루프. (ADR-0004)
 - **T-0009** `TODO` — 감시 폴더 관리 UI: 트레이 메뉴에서 폴더 추가/선택 + 제외 목록 편집, 설정 파일에 왕복 반영. (ADR-0003, 0004, 0008)
@@ -36,15 +36,16 @@
 
 ## 알림
 
-- **T-0011** `TODO` — 아이콘 색 4-state(gray/green/yellow/red) 렌더 및 전환 로직.
-  심볼 = FontAwesome ruler-horizontal, 색 임계 = `notify.thresholds`(초과 건수). idle=gray, 초과0=green,
-  ≥yellow=yellow, ≥red=red. FontAwesome CC BY 4.0 attribution 처리. (ADR-0005, OBS-...-01/04)
+- **T-0011** `TODO` — 아이콘 색 5-state(gray/blue/green/yellow/red) 렌더 및 전환 로직.
+  심볼 = FontAwesome ruler-horizontal. idle=gray, 검사중=blue, 초과0=green, ≥yellow=yellow, ≥red=red
+  (색 임계 = `notify.thresholds`, 초과 건수). FontAwesome CC BY 4.0 attribution 처리. (ADR-0005, OBS-...-01/04)
 - **T-0012** `TODO` — (선택) OS 네이티브 배너 병행: 맥 UserNotifications, 윈도우 toast. `notify.native_banner` 게이트. (ADR-0005)
 - **T-0013** `TODO` — 마지막 스캔 결과(초과/경고 건수) 상태 요약 헤더 노출. (ADR-0010, T-0007b와 연계)
 
 ## 배포
 
 - **T-0014** `TODO` — 릴리스 파이프라인: 3타깃 바이너리 빌드·아티팩트 패키징(맥 .app/dmg, 윈도우 .exe).
+  표시명 메타데이터 = `Sync Pathguard`, 식별자 = `sync-pathguard`. (ADR-0011)
 - **T-0015** `BLOCKED` — 맥 코드서명·공증, 윈도우 코드서명, 로그인 자동시작 등록. (ADR-0007, 인증서/계정 필요)
 
 ## 정리

@@ -1,4 +1,4 @@
-# sync-pathguard
+# Sync Pathguard
 
 [English](README.md) · [한국어](README.ko.md)
 
@@ -126,7 +126,7 @@ Growing into a resident tray / menu-bar app for macOS (Intel & Apple Silicon) an
 - **Single-binary distribution** — Go rewrite, one dependency-free executable (macOS arm64/amd64, Windows amd64)
 - **Resident tray / menu bar** — click to configure watched folders, interval, schedule, exclusions
 - **YAML config file** — multiple watch folders, limits/warn ratio/exclusions/alert style
-- **Icon-state alerts** — icon color changes with the over-limit count (gray → green → yellow → red)
+- **Icon-state alerts** — icon color reflects state: gray (idle) → blue (scanning) → green / yellow / red (by over-limit count)
 - **Localized UI** — follows the system locale by default; English and Korean selectable
 
 Design docs live in [`prj/`](prj/) (PRD · ADR · TASKS · NOTES).

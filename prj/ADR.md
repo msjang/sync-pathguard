@@ -98,20 +98,21 @@ menu:
 **맥락**: 사용자가 원한 방식은 "아이콘 색이 변하는" 저간섭 알림.
 아이콘 심볼은 FontAwesome **ruler-horizontal**(solid) — "길이 가드"라는 뜻과 맞음.
 
-**결정**: 단일 심볼(자)에 **색으로 4-state**를 표현한다. 색 임계는 초과(over) 파일 **건수** 기준.
+**결정**: 단일 심볼(자)에 **색으로 5-state**를 표현한다. 결과 색(green/yellow/red)의 임계는 초과(over) 파일 **건수** 기준.
 
 | 상태 | 색 | 조건 |
 |---|---|---|
-| idle / scanning | gray | 실행 전 · 검사 중 (툴팁으로 구분: "아직 검사 안 함" / "검사 중…") |
+| idle | gray | 실행 전 / 아직 스캔 안 함 |
+| scanning | blue | 검사 중 |
 | ok | green | 스캔 완료, 모든 파일이 길이 만족 (초과 0) |
 | warn | yellow | 초과 `>= thresholds.yellow` (기본 1) |
 | over | red | 초과 `>= thresholds.red` (기본 10) |
 
-5번째 색 대신 gray를 idle·scanning 공용으로 쓰고 **툴팁**으로 구분한다(향후 검사 중 애니메이션 옵션).
+검사 중은 gray가 아니라 **blue**로 구분한다(애니메이션은 깔끔히 만들기 어려워 색상 상태로 대체).
 임계값은 `conf.yml`(`notify.thresholds`)에서 수정 가능.
 `notify.native_banner`가 켜져 있으면 건수 요약 배너를 병행(맥 UserNotifications, 윈도우 toast).
 
-**결과**: 심볼 1종 + 색 4종(gray/green/yellow/red) 렌더 필요.
+**결과**: 심볼 1종 + 색 5종(gray/blue/green/yellow/red) 렌더 필요.
 FontAwesome Free는 CC BY 4.0 → 배포물에 attribution 필요(NOTES 참고).
 "경고(80~100%, 아직 초과 아님) 건수"를 색에 반영할지는 OBS-20260707-04로 관리.
 
@@ -185,7 +186,7 @@ Go 트레이 앱 단계에서 카탈로그 골격 마련.
 
 **결정 — 메뉴 구성(위→아래)**:
 ```
-sync-pathguard              (헤더, 비활성)
+Sync Pathguard              (헤더, 비활성 — 표시 이름, ADR-0011)
 ⚠ 초과 3 · 경고 8           (상태 요약, 비활성, 색+문구)
 ──────────
 초과 (n)        ▸           (n>0일 때만; n < menu.max_inline이면 파일 트리)
@@ -205,7 +206,22 @@ sync-pathguard              (헤더, 비활성)
   - macOS: `open -R <path>`
   - Windows: `explorer /select,"<path>"`
   - Linux: 파일 선택 표준 없음 → 베스트에포트 폴더 열기(`xdg-open <dir>`), 가능하면 `nautilus/dolphin --select`.
-- 검사 중에는 아이콘 gray + 툴팁 "검사 중…"(ADR-0005).
+- 검사 중에는 아이콘 blue(ADR-0005).
 
 **결과**: 소량은 즉시 탐색, 다량은 리포트로. Linux reveal 한계는 OBS-20260707-05로 관리.
 `Settings…` 전용 UI는 후속 과제(당장은 에디터로 conf 열기).
+
+---
+
+## ADR-0011 — 표시 이름과 식별자 분리
+**상태**: Accepted
+
+**맥락**: repo/CLI 이름이 `sync-pathguard`(소문자·하이픈)라 사람이 보는 곳엔 투박하다.
+
+**결정**:
+- **표시 이름(사람이 보는 곳) = `Sync Pathguard`**: README 제목, 트레이 메뉴 헤더,
+  앱 번들 표시명(macOS `CFBundleName`), 윈도우 실행파일 제품명, About 창, 네이티브 알림 타이틀.
+- **식별자(기계가 쓰는 곳) = `sync-pathguard`**: repo 이름, 바이너리/패키지명, 설정 디렉터리
+  (`~/Library/Application Support/sync-pathguard`, `%APPDATA%\sync-pathguard`), 번들 ID 요소.
+
+**결과**: 빌드/패키징 단계에서 표시명 메타데이터를 `Sync Pathguard`로 설정(T-0014). 식별자는 그대로.
