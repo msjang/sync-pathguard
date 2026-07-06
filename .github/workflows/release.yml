@@ -1,8 +1,8 @@
 name: Release
 
-# 버전 태그(v*)를 push 하면 GitHub Release를 만든다.
-# 현재는 Python 스크립트를 첨부. Go 재구현(T-0014) 이후 3타깃 단일 바이너리를
-# 빌드해 함께 첨부하도록 확장할 예정.
+# Pushing a version tag (v*) creates a GitHub Release with generated notes.
+# Building and attaching per-OS native binaries (systray is cgo, so no
+# cross-compile — macOS/Windows runners each build natively) is T-0014.
 on:
   push:
     tags: ["v*"]
@@ -18,8 +18,4 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            pathguard.py
-            README.md
-            LICENSE
           generate_release_notes: true

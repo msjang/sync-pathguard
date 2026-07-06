@@ -52,4 +52,5 @@
 
 ## 정리
 
-- **T-0016** `TODO` — Python `pathguard.py`의 위치 정리: Go 이식 검증 후 참조용 CLI로 남길지/제거할지 결정.
+- **T-0016** `DONE` — Python 제거: `pathguard.py`·`tests/test_smoke.py` 삭제, CLI를 순수 Go(`cmd/pathguard`,
+  `--json`/`--root`/`--remote-prefix`/`--config`, 초과 시 exit 1)로 대체. CI에서 Python 잡 제거.

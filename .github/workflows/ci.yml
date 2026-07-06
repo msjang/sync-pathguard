@@ -6,22 +6,6 @@ on:
   pull_request:
 
 jobs:
-  python:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Syntax check
-        run: python -m py_compile pathguard.py
-      - name: Smoke test
-        run: python tests/test_smoke.py
-
   go:
     runs-on: ${{ matrix.os }}
     strategy:

@@ -93,41 +93,39 @@ go run ./cmd/sync-pathguard      # 또는: scripts/build.sh → bin/sync-pathgua
 - Windows: `%APPDATA%\sync-pathguard\config.yml`
 - Linux: `~/.config/sync-pathguard/config.yml`
 
-### CLI (Python)
+### CLI (Go)
 
-의존성 없는 단일 스크립트 — 일회성 점검·스크립트·CI에 편리합니다.
-
-```bash
-python3 pathguard.py           # 사람이 읽는 리포트
-python3 pathguard.py --json    # 요약 JSON (스케줄/알림용)
-```
-
-검사할 폴더와 원격 경로는 환경변수로 지정합니다:
+순수 Go, 의존성 없는 바이너리 — 일회성 점검·스크립트·CI에 편리합니다
+(초과가 하나라도 있으면 종료 코드 0이 아님).
 
 ```bash
-PATHGUARD_ROOT="$HOME/Documents" \
-PATHGUARD_REMOTE_PREFIX="/volume1/homes/johndoe/MyDocuments" \
-  python3 pathguard.py
+go run ./cmd/pathguard          # 설정된 감시 폴더 스캔, 리포트 출력
+go run ./cmd/pathguard --json   # 요약 JSON
+go run ./cmd/pathguard --root ~/문서 --remote-prefix /volume1/homes/johndoe/MyDocuments
 ```
 
 ## 설정
 
-트레이 앱은 위 YAML 설정을 읽습니다 (스키마는 [`prj/ADR.md`](prj/ADR.md) ADR-0003).
-Python CLI는 환경변수로 설정합니다:
+앱과 CLI가 같은 YAML 설정을 읽습니다 (전체 스키마는 [`prj/ADR.md`](prj/ADR.md) ADR-0003):
 
-| 변수 (env) | 기본값 | 의미 |
-|---|---|---|
-| `PATHGUARD_ROOT` | `~/Documents` | 검사 대상 로컬 폴더 |
-| `PATHGUARD_REMOTE_PREFIX` | `/volume1/homes/johndoe/MyDocuments` | 원격(NAS/클라우드) 쪽 절대경로 루트 (PATH_MAX 계산용) |
-| `PATHGUARD_NAME_MAX` | `255` | 파일/폴더명 하나의 바이트 한계 |
-| `PATHGUARD_PATH_MAX` | `4096` | 전체 경로 바이트 한계 |
-| `PATHGUARD_WARN` | `0.80` | 한계의 80%부터 경고 |
-| `PATHGUARD_EXCLUDE` | (아래 기본 제외 목록) | 쉼표로 구분한 제외 이름. 설정 시 기본값을 **대체**, 빈 문자열이면 제외 없음 |
+```yaml
+watch:
+  - root: ~/Documents
+    remote_prefix: /volume1/homes/johndoe/MyDocuments  # 원격 절대경로 루트 (PATH_MAX 계산용)
+limits:  { name_max: 255, path_max: 4096, warn_ratio: 0.80 }  # 0.80 = 80%부터 경고
+exclude: [.git, node_modules, "@eaDir", "#recycle"]          # 제외할 노이즈 폴더
+notify:
+  thresholds: { yellow: 1, red: 10, warn: 1 }   # 초과/경고 건수 기준 아이콘 색
+menu: { max_inline: 10 }                          # 메뉴에 인라인 표시할 worst-N
+ui:   { language: auto }                          # auto(시스템 로케일) | en | ko
+```
 
 기본 제외: `.git`, `node_modules`, `@eaDir`, `#recycle`, `#snapshot`,
 `.DS_Store`, `.Trashes`, `.Spotlight-V100`, `.fseventsd`, `$RECYCLE.BIN`, `System Volume Information`
 
-> 원격 경로 길이가 병목입니다. `PATHGUARD_REMOTE_PREFIX`를 실제 동기화 대상 경로와 맞추세요.
+CLI 플래그: `--config <경로>`, `--root <폴더>`, `--remote-prefix <경로>`, `--json`.
+
+> 원격 경로 길이가 병목입니다. `remote_prefix`를 실제 동기화 대상 경로와 맞추세요.
 
 ## 동작 원리
 

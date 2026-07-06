@@ -119,6 +119,20 @@ func Load() (Config, string, error) {
 	return cfg, path, nil
 }
 
+// LoadFile reads a specific config file onto the defaults (no auto-create).
+// Missing keys keep their default values.
+func LoadFile(path string) (Config, error) {
+	cfg := Default()
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return cfg, err
+	}
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return cfg, err
+	}
+	return cfg, nil
+}
+
 // Save writes cfg to path (creating parent dirs).
 func Save(cfg Config, path string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {

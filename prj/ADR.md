@@ -30,7 +30,8 @@
 - 설정: `gopkg.in/yaml.v3`
 - 배포: `darwin/arm64`, `darwin/amd64`, `windows/amd64` 각각 **단일 바이너리**(런타임 의존성 0).
 
-**결과**: 현행 `pathguard.py`의 스캔 로직을 Go로 이식. Python 버전은 참조/CLI로 당분간 유지.
+**결과**: `pathguard.py`의 스캔 로직을 Go로 이식(`internal/scan`). CLI도 Go(`cmd/pathguard`)로 만들고
+Python 스크립트는 제거함(T-0016) — 중복 유지보수 회피.
 Rust 대비 트레이 이벤트 루프 구현이 단순. 맥은 필요 시 코드서명/공증은 후속 과제(ADR-0007 참조).
 
 **⚠️ 교차컴파일 정정**: systray는 **cgo**(Cocoa/GTK/Win32)라 "한 머신에서 전 타깃 교차컴파일"이 불가.

@@ -1,7 +1,10 @@
 // Package trayicon renders the tray/menu-bar icon as PNG bytes. The symbol is a
-// simple horizontal ruler (placeholder for the FontAwesome ruler-horizontal
-// asset, ADR-0005 / OBS-01) tinted by state color. Five states: gray (idle),
-// blue (scanning), green (ok), yellow (warn), red (over).
+// horizontal ruler (placeholder for the FontAwesome ruler-horizontal asset,
+// ADR-0005 / OBS-01) tinted by state color. Five states: gray (idle), blue
+// (scanning), green (ok), yellow (warn), red (over).
+//
+// It is drawn as an outlined rectangle with a few graduation ticks so it still
+// reads as a ruler after the OS scales it down to menu-bar size.
 package trayicon
 
 import (
@@ -9,6 +12,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 )
 
 type State int
@@ -25,39 +29,68 @@ var colors = map[State]color.RGBA{
 	Idle:     {0x9a, 0xa0, 0xa6, 0xff}, // gray
 	Scanning: {0x1a, 0x73, 0xe8, 0xff}, // blue
 	OK:       {0x34, 0xa8, 0x53, 0xff}, // green
-	Warn:     {0xfb, 0xbc, 0x04, 0xff}, // amber
+	Warn:     {0xf9, 0xab, 0x00, 0xff}, // amber
 	Over:     {0xea, 0x43, 0x35, 0xff}, // red
 }
 
-// PNG returns the icon for a state as PNG bytes.
-func PNG(s State) []byte {
+// defaultSize suits a Retina menu bar (≈22pt @2x).
+const defaultSize = 44
+
+// PNG returns the icon for a state at the default size.
+func PNG(s State) []byte { return PNGSize(s, defaultSize) }
+
+// PNGSize returns the icon for a state rendered at size×size pixels.
+func PNGSize(s State, size int) []byte {
 	c, ok := colors[s]
 	if !ok {
 		c = colors[Idle]
 	}
-	const size = 32
-	img := image.NewRGBA(image.Rect(0, 0, size, size))
-
-	// Ruler body: a horizontal bar.
-	const top, bottom, left, right = 11, 21, 3, 29
-	for y := top; y <= bottom; y++ {
-		for x := left; x <= right; x++ {
-			img.Set(x, y, c)
-		}
-	}
-	// Tick notches cut from the top edge, alternating depth — reads as a ruler.
-	transparent := color.RGBA{}
-	for i, x := 0, left+3; x < right; i, x = i+1, x+3 {
-		depth := 4
-		if i%2 == 1 {
-			depth = 2
-		}
-		for y := top; y < top+depth; y++ {
-			img.Set(x, y, transparent)
-		}
-	}
-
+	img := render(c, size)
 	var buf bytes.Buffer
 	_ = png.Encode(&buf, img)
 	return buf.Bytes()
 }
+
+func render(c color.RGBA, size int) *image.RGBA {
+	img := image.NewRGBA(image.Rect(0, 0, size, size))
+	w, h := float64(size), float64(size)
+
+	stroke := iround(w * 0.09)
+	if stroke < 1 {
+		stroke = 1
+	}
+	// Ruler body: a wide, short outlined rectangle, vertically centered.
+	x0, x1 := iround(0.08*w), iround(0.92*w)
+	y0, y1 := iround(0.34*h), iround(0.66*h)
+
+	fill(img, x0, y0, x1, y1, c)                                 // solid block…
+	fill(img, x0+stroke, y0+stroke, x1-stroke, y1-stroke, clear) // …hollowed to an outline
+
+	// Graduation ticks hanging from the top inner edge — alternating long/short.
+	inner := y1 - y0
+	long := iround(float64(inner) * 0.62)
+	short := iround(float64(inner) * 0.34)
+	fracs := []float64{0.25, 0.375, 0.5, 0.625, 0.75} // evenly spaced graduations
+	longAt := map[int]bool{0: true, 2: true, 4: true} // long-short-long-short-long
+	for i, f := range fracs {
+		tx := iround(f * w)
+		tl := short
+		if longAt[i] {
+			tl = long
+		}
+		fill(img, tx, y0, tx+stroke, y0+tl, c)
+	}
+	return img
+}
+
+var clear = color.RGBA{}
+
+func fill(img *image.RGBA, x0, y0, x1, y1 int, c color.RGBA) {
+	for y := y0; y < y1; y++ {
+		for x := x0; x < x1; x++ {
+			img.SetRGBA(x, y, c)
+		}
+	}
+}
+
+func iround(f float64) int { return int(math.Round(f)) }

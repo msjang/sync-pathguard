@@ -99,41 +99,40 @@ Config file location:
 - Windows: `%APPDATA%\sync-pathguard\config.yml`
 - Linux: `~/.config/sync-pathguard/config.yml`
 
-### CLI (Python)
+### CLI (Go)
 
-A dependency-free single script — handy for one-off checks, scripts, or CI.
-
-```bash
-python3 pathguard.py           # human-readable report
-python3 pathguard.py --json    # summary JSON (for scheduling/alerts)
-```
-
-Point it at your folder and remote path with environment variables:
+A pure-Go, dependency-free binary — handy for one-off checks, scripts, or CI
+(it exits non-zero when anything is over the limit).
 
 ```bash
-PATHGUARD_ROOT="$HOME/Documents" \
-PATHGUARD_REMOTE_PREFIX="/volume1/homes/johndoe/MyDocuments" \
-  python3 pathguard.py
+go run ./cmd/pathguard          # scan configured watches, print a report
+go run ./cmd/pathguard --json   # summary JSON
+go run ./cmd/pathguard --root ~/Docs --remote-prefix /volume1/homes/johndoe/MyDocuments
 ```
 
 ## Configuration
 
-The tray app reads the YAML config above (schema in [`prj/ADR.md`](prj/ADR.md),
-ADR-0003). The Python CLI is configured by environment variables:
+Both the app and the CLI read the same YAML config (full schema in
+[`prj/ADR.md`](prj/ADR.md), ADR-0003):
 
-| Variable (env) | Default | Meaning |
-|---|---|---|
-| `PATHGUARD_ROOT` | `~/Documents` | Local folder to scan |
-| `PATHGUARD_REMOTE_PREFIX` | `/volume1/homes/johndoe/MyDocuments` | Remote (NAS/cloud) absolute root, for PATH_MAX |
-| `PATHGUARD_NAME_MAX` | `255` | Byte limit for a single file/folder name |
-| `PATHGUARD_PATH_MAX` | `4096` | Byte limit for the full path |
-| `PATHGUARD_WARN` | `0.80` | Warn once a name reaches 80% of the limit |
-| `PATHGUARD_EXCLUDE` | (default list below) | Comma-separated names to skip. **Replaces** the defaults when set; empty string disables exclusion |
+```yaml
+watch:
+  - root: ~/Documents
+    remote_prefix: /volume1/homes/johndoe/MyDocuments  # remote absolute root, for PATH_MAX
+limits:  { name_max: 255, path_max: 4096, warn_ratio: 0.80 }  # 0.80 = warn from 80%
+exclude: [.git, node_modules, "@eaDir", "#recycle"]          # noise dirs to skip
+notify:
+  thresholds: { yellow: 1, red: 10, warn: 1 }   # icon color by over/warn counts
+menu: { max_inline: 10 }                          # worst-N shown inline in the menu
+ui:   { language: auto }                          # auto (system locale) | en | ko
+```
 
 Default exclusions: `.git`, `node_modules`, `@eaDir`, `#recycle`, `#snapshot`,
 `.DS_Store`, `.Trashes`, `.Spotlight-V100`, `.fseventsd`, `$RECYCLE.BIN`, `System Volume Information`
 
-> The remote path length is the bottleneck — set `PATHGUARD_REMOTE_PREFIX` to your actual sync target.
+CLI flags: `--config <path>`, `--root <dir>`, `--remote-prefix <p>`, `--json`.
+
+> The remote path length is the bottleneck — set `remote_prefix` to your actual sync target.
 
 ## How it works
 

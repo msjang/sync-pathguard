@@ -6,7 +6,8 @@
 한글 조합형(NFD) 확장 때문에 **동기화가 깨질 위험이 있는 파일을 미리 잡아내는** 읽기전용 도구.
 동기화 앱에 종속되지 않는다 (Synology Drive · Dropbox · Nextcloud · OneDrive · iCloud 등).
 
-현재는 `pathguard.py` 단발 스캐너(CLI). 앞으로는 **맥/윈도우에 상주하는 트레이·메뉴바 앱**으로 발전시킨다.
+Go로 구현: **맥/윈도우 트레이·메뉴바 상주 앱**(`cmd/sync-pathguard`)과 **헤드리스 CLI**(`cmd/pathguard`).
+초기 프로토타입이던 `pathguard.py`는 Go CLI로 대체·제거됨(T-0016).
 
 ## 왜
 
