@@ -87,7 +87,7 @@ run the app writes a default config (**Settings…** in the menu opens it); poin
 result and clicking an over-limit file reveals it in Finder/Explorer. It's a
 menu-bar agent — look for the ruler icon, there's no Dock icon.
 
-**macOS — Homebrew** (once the [tap](packaging/homebrew) is set up):
+**macOS — Homebrew** (via the [tap](https://github.com/msjang/homebrew-tap)):
 
 ```bash
 brew tap msjang/tap

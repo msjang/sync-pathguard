@@ -50,8 +50,8 @@
   Windows `.exe`(`-H=windowsgui`), Linux CLI 크로스빌드. GitHub Release 자동 첨부. (ADR-0002, 0011, 0012)
   - 남음(선택): `.dmg` 포장(현재 zip), 태그 후 실제 릴리스 1회 검증.
 - **T-0015** `BLOCKED` — 맥 코드서명·공증, 윈도우 코드서명, 로그인 자동시작 등록. (ADR-0007, 0012, 인증서/계정 필요)
-- **T-0017** `TODO` — Homebrew 배포: 자체 tap(`homebrew-tap`)에 cask(앱)+formula(CLI) 등록
-  (템플릿 `packaging/homebrew/`). 릴리스 시 version/sha256 자동 갱신은 후속. 공식 cask는 공증(T-0015) 후. (ADR-0012)
+- **T-0017** `DOING` — Homebrew 배포: 자체 tap repo `msjang/homebrew-tap` 생성·구성 완료(cask=앱, formula=CLI, README).
+  남음: 첫 릴리스(v0.1.0) 후 version/sha256 채우기 → tap 재푸시. 자동 bump 워크플로·공식 cask(공증 후)는 후속. (ADR-0012)
 
 ## 정리
 
