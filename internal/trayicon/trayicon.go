@@ -66,19 +66,11 @@ func render(c color.RGBA, size int) *image.RGBA {
 	fill(img, x0, y0, x1, y1, c)                                 // solid block…
 	fill(img, x0+stroke, y0+stroke, x1-stroke, y1-stroke, clear) // …hollowed to an outline
 
-	// Graduation ticks hanging from the top inner edge — alternating long/short.
-	inner := y1 - y0
-	long := iround(float64(inner) * 0.62)
-	short := iround(float64(inner) * 0.34)
-	fracs := []float64{0.25, 0.375, 0.5, 0.625, 0.75} // evenly spaced graduations
-	longAt := map[int]bool{0: true, 2: true, 4: true} // long-short-long-short-long
-	for i, f := range fracs {
+	// Full-height graduation ticks — stay legible after the OS scales the icon
+	// down to menu-bar size (~22px).
+	for _, f := range []float64{0.25, 0.375, 0.5, 0.625, 0.75} {
 		tx := iround(f * w)
-		tl := short
-		if longAt[i] {
-			tl = long
-		}
-		fill(img, tx, y0, tx+stroke, y0+tl, c)
+		fill(img, tx, y0, tx+stroke, y1, c)
 	}
 	return img
 }
