@@ -1,8 +1,13 @@
 name: Release
 
-# Pushing a version tag (v*) creates a GitHub Release with generated notes.
-# Building and attaching per-OS native binaries (systray is cgo, so no
-# cross-compile — macOS/Windows runners each build natively) is T-0014.
+# Push a version tag (e.g. v0.1.0) to build native binaries per OS and attach
+# them to a GitHub Release. systray is cgo, so the macOS app is built natively
+# on both an Apple-Silicon and an Intel runner (no cross-compile). The pathguard
+# CLI is pure Go and cross-compiles for Linux.
+#
+# NOTE: builds are UNSIGNED (T-0015). macOS Gatekeeper / Windows SmartScreen will
+# warn until code signing + notarization is added; the Homebrew cask clears the
+# quarantine flag as a stopgap (packaging/homebrew).
 on:
   push:
     tags: ["v*"]
@@ -11,11 +16,64 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: macos-14, arch: arm64 }
+          - { runner: macos-13, arch: amd64 }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Package .app + CLI
+        run: bash scripts/package-macos.sh "${{ github.ref_name }}" "${{ matrix.arch }}"
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/Sync-Pathguard-macos-${{ matrix.arch }}.zip
+            dist/pathguard-macos-${{ matrix.arch }}.zip
+
+  windows:
+    runs-on: windows-latest
+    env:
+      CGO_ENABLED: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Build .exe + CLI
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/Sync Pathguard.exe" ./cmd/sync-pathguard
+          go build -trimpath -ldflags "-s -w" -o "dist/pathguard.exe" ./cmd/pathguard
+          Compress-Archive -Path "dist/Sync Pathguard.exe","dist/pathguard.exe" -DestinationPath "dist/Sync-Pathguard-windows-amd64.zip" -Force
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/Sync-Pathguard-windows-amd64.zip
+
+  linux-cli:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create release
-        uses: softprops/action-gh-release@v2
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+      - name: Build CLI (pure Go, cross-compile)
+        run: |
+          mkdir -p dist
+          for arch in amd64 arm64; do
+            CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build -trimpath -ldflags "-s -w" -o dist/pathguard ./cmd/pathguard
+            (cd dist && tar czf "pathguard-linux-$arch.tar.gz" pathguard && rm pathguard)
+          done
+      - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          files: dist/pathguard-linux-*.tar.gz
