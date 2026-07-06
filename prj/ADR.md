@@ -53,16 +53,17 @@ watch:
 limits:
   name_max: 255        # 바이트
   path_max: 4096       # 바이트
-  warn_ratio: 0.80     # 한계의 80%부터 경고
+  warn_ratio: 0.80     # 경고 시작 비율 = 한계의 80% (0.90 = 90%). 파일 하나가 '경고'인지 판정
 schedule:
   interval: 6h         # 감시 주기 (예: 30m, 6h)
   at: []               # (선택) 특정 시각 실행 ["09:00", "18:00"]
 notify:
   tray_warn_icon: true # 위험 시 아이콘 색 변경
   native_banner: false # OS 네이티브 배너 병행 여부
-  thresholds:          # 초과 파일 '건수' 기준 아이콘 색 임계
-    yellow: 1          # 초과 이 개수 이상 → yellow
-    red: 10            # 초과 이 개수 이상 → red
+  thresholds:          # 아이콘 색 임계 (집계 '건수' 기준)
+    yellow: 1          # 초과(over) 건수 ≥ 이 값 → yellow
+    red: 10            # 초과(over) 건수 ≥ 이 값 → red
+    warn: 1            # 초과 0이어도 경고(warn) 건수 ≥ 이 값 → yellow
 exclude:               # 스캔 제외 이름 (모든 watch 공통, ADR-0008)
   - .git
   - "@eaDir"           # 시놀로지 캐시(서버 생성)
@@ -98,18 +99,20 @@ menu:
 **맥락**: 사용자가 원한 방식은 "아이콘 색이 변하는" 저간섭 알림.
 아이콘 심볼은 FontAwesome **ruler-horizontal**(solid) — "길이 가드"라는 뜻과 맞음.
 
-**결정**: 단일 심볼(자)에 **색으로 5-state**를 표현한다. 결과 색(green/yellow/red)의 임계는 초과(over) 파일 **건수** 기준.
+**결정**: 단일 심볼(자)에 **색으로 5-state**를 표현한다. 결과 색(green/yellow/red)은
+초과(over)·경고(warn) **건수** 기준. 우선순위 **red > yellow > green**.
 
 | 상태 | 색 | 조건 |
 |---|---|---|
 | idle | gray | 실행 전 / 아직 스캔 안 함 |
 | scanning | blue | 검사 중 |
-| ok | green | 스캔 완료, 모든 파일이 길이 만족 (초과 0) |
-| warn | yellow | 초과 `>= thresholds.yellow` (기본 1) |
+| ok | green | 초과 0 **그리고** 경고 `< thresholds.warn` (완전 깨끗) |
+| warn | yellow | 초과 `>= thresholds.yellow`(기본 1) **또는** (초과 0이어도) 경고 `>= thresholds.warn`(기본 1) |
 | over | red | 초과 `>= thresholds.red` (기본 10) |
 
-검사 중은 gray가 아니라 **blue**로 구분한다(애니메이션은 깔끔히 만들기 어려워 색상 상태로 대체).
-임계값은 `conf.yml`(`notify.thresholds`)에서 수정 가능.
+- **경고 판정(파일 단위)**: `limits.warn_ratio`(기본 0.80 = 한계의 80%). 어떤 파일을 '경고'로 볼지 결정.
+- **아이콘 색(집계 단위)**: `notify.thresholds`의 yellow/red(초과 건수), warn(경고 건수).
+- 검사 중은 gray가 아니라 **blue**(애니메이션은 깔끔히 만들기 어려워 색상 상태로 대체).
 `notify.native_banner`가 켜져 있으면 건수 요약 배너를 병행(맥 UserNotifications, 윈도우 toast).
 
 **결과**: 심볼 1종 + 색 5종(gray/blue/green/yellow/red) 렌더 필요.

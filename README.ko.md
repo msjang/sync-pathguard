@@ -121,7 +121,7 @@ PATHGUARD_REMOTE_PREFIX="/volume1/homes/johndoe/MyDocuments" \
 - **단일 바이너리 배포** — Go 재구현, 의존성 없는 단일 실행파일 (macOS arm64/amd64, Windows amd64)
 - **트레이/메뉴바 상주** — 클릭 시 메뉴에서 감시 폴더·주기·시각·제외 설정
 - **YAML 설정 파일** — 다중 감시 폴더, 한계/경고비율/제외/알림 방식
-- **아이콘 상태 알림** — 아이콘 색으로 상태 표시: gray(대기) → blue(검사 중) → green/yellow/red(초과 건수)
+- **아이콘 상태 알림** — 아이콘 색: gray(대기)·blue(검사 중)·green(깨끗)·yellow(경고 또는 일부 초과)·red(다수 초과), 임계값 설정 가능
 - **다국어 UI** — 시스템 로케일 기본, 영어·한국어 선택
 
 설계 문서는 [`prj/`](prj/) 참고 (PRD · ADR · TASKS · NOTES).

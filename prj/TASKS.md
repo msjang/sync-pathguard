@@ -37,8 +37,9 @@
 ## 알림
 
 - **T-0011** `TODO` — 아이콘 색 5-state(gray/blue/green/yellow/red) 렌더 및 전환 로직.
-  심볼 = FontAwesome ruler-horizontal. idle=gray, 검사중=blue, 초과0=green, ≥yellow=yellow, ≥red=red
-  (색 임계 = `notify.thresholds`, 초과 건수). FontAwesome CC BY 4.0 attribution 처리. (ADR-0005, OBS-...-01/04)
+  심볼 = FontAwesome ruler-horizontal. idle=gray, 검사중=blue. 결과색 우선순위 red>yellow>green:
+  red=초과≥`thresholds.red`, yellow=초과≥`thresholds.yellow` 또는 경고≥`thresholds.warn`, green=그 외.
+  FontAwesome CC BY 4.0 attribution 처리. (ADR-0005, OBS-...-01)
 - **T-0012** `TODO` — (선택) OS 네이티브 배너 병행: 맥 UserNotifications, 윈도우 toast. `notify.native_banner` 게이트. (ADR-0005)
 - **T-0013** `TODO` — 마지막 스캔 결과(초과/경고 건수) 상태 요약 헤더 노출. (ADR-0010, T-0007b와 연계)
 
