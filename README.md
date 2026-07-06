@@ -78,14 +78,42 @@ back under 255).
 
 ## Install & use
 
-Two ways to run it (prebuilt signed binaries land with the first release):
+### Tray / menu-bar app
 
-### Tray / menu-bar app (Go)
+Prebuilt binaries are on the [Releases](../../releases) page. They are currently
+**unsigned**, so macOS and Windows warn on first launch — steps below. On first
+run the app writes a default config (**Settings…** in the menu opens it); point
+`watch` at your synced folder, then use **Scan now**. The icon color shows the
+result and clicking an over-limit file reveals it in Finder/Explorer. It's a
+menu-bar agent — look for the ruler icon, there's no Dock icon.
 
-Requires Go 1.25+. On first launch it writes a default config; **Settings…** in
-the menu opens it. Point `watch` at your synced folder, then use **Scan now** —
-the icon color shows the result and clicking an over-limit file reveals it in
-Finder/Explorer.
+**macOS — Homebrew** (once the [tap](packaging/homebrew) is set up):
+
+```bash
+brew tap msjang/tap
+brew install --cask sync-pathguard   # clears the quarantine flag for you
+```
+
+**macOS — manual:** because the app is unsigned, macOS blocks it with "can't be
+opened" until you remove the quarantine flag.
+
+1. From [Releases](../../releases), download `Sync-Pathguard-macos-arm64.zip`
+   (Apple Silicon) or `-amd64.zip` (Intel) and unzip it.
+2. Move **Sync Pathguard.app** to `/Applications`.
+3. Clear quarantine and open:
+
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/Sync Pathguard.app"
+   open "/Applications/Sync Pathguard.app"
+   ```
+
+   Or without Terminal: right-click the app → **Open** → **Open**; on recent
+   macOS go to System Settings → Privacy & Security → **Open Anyway**.
+
+**Windows — manual:** download `Sync-Pathguard-windows-amd64.zip`, unzip, run
+`Sync Pathguard.exe`. If SmartScreen warns: **More info → Run anyway**.
+
+**Build from source** (any OS, requires Go 1.25+):
 
 ```bash
 git clone https://github.com/msjang/sync-pathguard.git
