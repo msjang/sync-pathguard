@@ -1,4 +1,4 @@
-// Package config loads and persists the Sync Pathguard YAML config, applying
+// Package config loads and persists the Pathguard YAML config, applying
 // defaults for any missing keys. See ADR-0003 for the schema.
 package config
 
@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const appDir = "sync-pathguard" // identifier (ADR-0011)
+const appDir = "pathguard" // identifier (ADR-0011)
 
 type Watch struct {
 	Root         string `yaml:"root"`
@@ -85,9 +85,9 @@ func Default() Config {
 
 // Path is the OS-conventional config file location (ADR-0003):
 //
-//	macOS:   ~/Library/Application Support/sync-pathguard/config.yml
-//	Windows: %AppData%\sync-pathguard\config.yml
-//	Linux:   ~/.config/sync-pathguard/config.yml
+//	macOS:   ~/Library/Application Support/pathguard/config.yml
+//	Windows: %AppData%\pathguard\config.yml
+//	Linux:   ~/.config/pathguard/config.yml
 func Path() (string, error) {
 	dir, err := os.UserConfigDir()
 	if err != nil {

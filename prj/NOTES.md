@@ -1,4 +1,4 @@
-# NOTES — sync-pathguard
+# NOTES — pathguard
 
 PRD/PROCESS/TASKS/ADR 어디에도 깔끔히 안 들어가는 관찰과 오픈 이슈.
 

@@ -1,4 +1,4 @@
-# TASKS — sync-pathguard
+# TASKS — pathguard
 
 상태: `TODO` / `DOING` / `BLOCKED` / `DONE` / `DROP`
 
@@ -10,20 +10,20 @@
   `SYNO_PREFIX`→`REMOTE_PREFIX`(config `remote_prefix`), 동기화 앱 무관 서술, 환경변수(`PATHGUARD_*`) 설정화.
 - **T-0004a** `DONE` — README를 GitHub 공개 앱 소개형으로 재작성 (뱃지·특징·설치·설정·동작원리·로드맵·라이선스).
 - **T-0004b** `DONE` — GitHub Actions CI: Python 문법검사 + 스모크 테스트(임시 폴더에 NFD 초과 파일 생성해 탐지 확인).
-- **T-0004c** `DONE` — MIT LICENSE 추가 (holder: sync-pathguard contributors).
+- **T-0004c** `DONE` — MIT LICENSE 추가 (holder: pathguard contributors).
 - **T-0004d** `DONE` — 노이즈 디렉터리 기본 제외 + `PATHGUARD_EXCLUDE` 설정, Python 반영. (ADR-0008)
 - **T-0004e** `DONE` — README를 `README.md`(영어)/`README.ko.md`(한글)로 분리·상호링크, "한글만의 문제 아님" 표 추가. (ADR-0009)
 
 ## 스택 전환 (Go)
 
-- **T-0004** `DONE` — Go 스캐폴드: `go.mod`(module `github.com/msjang/sync-pathguard`), `cmd/`·`internal/` 구조, `scripts/build.sh`. (ADR-0002)
+- **T-0004** `DONE` — Go 스캐폴드: `go.mod`(module `github.com/msjang/pathguard`), `cmd/`·`internal/` 구조, `scripts/build.sh`. (ADR-0002)
 - **T-0005** `DONE` — 스캔 코어 이식(`internal/scan`): `x/text/unicode/norm` NFD 바이트, NAME/PATH 판정, worst-first 정렬, 제외. 단위테스트(초과 탐지·제외). (ADR-0001, 0002)
 - **T-0006** `DONE` — YAML 설정 로더(`internal/config`): 전체 스키마 파싱, 기본값 병합, OS별 경로, 없으면 생성. (ADR-0003, 0008, 0009)
 - **T-0006b** `DONE` — i18n message catalog(`internal/i18n`): `auto|en|ko`, auto=시스템 로케일. 메뉴/상태 문자열. (ADR-0009)
 
 ## 상주 앱
 
-- **T-0007** `DONE` — systray 상주 뼈대(`cmd/sync-pathguard`): 트레이/메뉴바 아이콘 + 메뉴 골격. (ADR-0004)
+- **T-0007** `DONE` — systray 상주 뼈대(`cmd/pathguard-gui`): 트레이/메뉴바 아이콘 + 메뉴 골격. (ADR-0004)
 - **T-0007b** `DONE` — 메뉴 구조: 헤더 + 상태요약 + 초과/경고 서브메뉴(worst-first 최대 `menu.max_inline`개
   + 초과분 "전체 리포트 열기…") + Scan/Settings/About/Quit. (ADR-0010)
 - **T-0007c** `DONE` — 결과 탐색(reveal): macOS `open -R` / Windows `explorer /select` / Linux 폴더 폴백. (ADR-0010, OBS-...-05)
@@ -46,7 +46,7 @@
 ## 배포
 
 - **T-0014** `DONE` — 릴리스 파이프라인(`release.yml`, v* 태그): OS별 네이티브 빌드 →
-  macOS `.app`(arm64/amd64 각각, `scripts/package-macos.sh`, LSUIElement, 표시명 `Sync Pathguard`),
+  macOS `.app`(arm64/amd64 각각, `scripts/package-macos.sh`, LSUIElement, 표시명 `Pathguard`),
   Windows `.exe`(`-H=windowsgui`), Linux CLI 크로스빌드. GitHub Release 자동 첨부. (ADR-0002, 0011, 0012)
   - 남음(선택): `.dmg` 포장(현재 zip), 태그 후 실제 릴리스 1회 검증.
 - **T-0015** `BLOCKED` — 맥 코드서명·공증, 윈도우 코드서명, 로그인 자동시작 등록. (ADR-0007, 0012, 인증서/계정 필요)

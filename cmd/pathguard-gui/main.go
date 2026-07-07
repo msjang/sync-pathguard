@@ -1,4 +1,4 @@
-// Command sync-pathguard is the resident tray / menu-bar app.
+// Command pathguard-gui is the resident tray / menu-bar app.
 // It periodically (and on demand) scans the configured folders for names/paths
 // whose NFD byte length risks breaking cloud/NAS sync, reflects the result in
 // the tray icon color, and lets you jump straight to an offending file.
@@ -16,14 +16,14 @@ import (
 
 	"fyne.io/systray"
 
-	"github.com/msjang/sync-pathguard/internal/config"
-	"github.com/msjang/sync-pathguard/internal/i18n"
-	"github.com/msjang/sync-pathguard/internal/report"
-	"github.com/msjang/sync-pathguard/internal/scan"
-	"github.com/msjang/sync-pathguard/internal/trayicon"
+	"github.com/msjang/pathguard/internal/config"
+	"github.com/msjang/pathguard/internal/i18n"
+	"github.com/msjang/pathguard/internal/report"
+	"github.com/msjang/pathguard/internal/scan"
+	"github.com/msjang/pathguard/internal/trayicon"
 )
 
-const repoURL = "https://github.com/msjang/sync-pathguard"
+const repoURL = "https://github.com/msjang/pathguard"
 
 var (
 	cfg     config.Config
@@ -53,7 +53,7 @@ func onReady() {
 	systray.SetTooltip(T("tooltip"))
 	setIcon(trayicon.Idle)
 
-	header := systray.AddMenuItem("Sync Pathguard", "")
+	header := systray.AddMenuItem("Pathguard", "")
 	header.Disable()
 	statusItem = systray.AddMenuItem(T("status_idle"), "")
 	statusItem.Disable()

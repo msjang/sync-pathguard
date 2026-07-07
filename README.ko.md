@@ -1,10 +1,10 @@
-# Sync Pathguard
+# Pathguard
 
-**한국어** · [English](README.md)
+[🇺🇸 English](README.md) · [🇰🇷 한국어](README.ko.md)
 
 > 한글 파일명이 클라우드/NAS 동기화를 **조용히 깨뜨리기 전에** 잡아내는 읽기전용 감시 도구.
 
-[![CI](https://github.com/msjang/sync-pathguard/actions/workflows/ci.yml/badge.svg)](https://github.com/msjang/sync-pathguard/actions/workflows/ci.yml)
+[![CI](https://github.com/msjang/pathguard/actions/workflows/ci.yml/badge.svg)](https://github.com/msjang/pathguard/actions/workflows/ci.yml)
 ![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -84,40 +84,40 @@ Finder/탐색기에서 선택해 줍니다. 메뉴바 에이전트라 **Dock 아
 
 ```bash
 brew tap msjang/tap
-brew install --cask sync-pathguard   # quarantine 플래그를 알아서 제거해 줌
+brew install --cask pathguard   # quarantine 플래그를 알아서 제거해 줌
 ```
 
 **macOS — 수동 설치:** 미서명이라 quarantine 플래그를 지우기 전엔 "열 수 없음"으로 막힙니다.
 
-1. [Releases](../../releases)에서 `Sync-Pathguard-macos-arm64.zip`(애플실리콘) 또는
+1. [Releases](../../releases)에서 `Pathguard-macos-arm64.zip`(애플실리콘) 또는
    `-amd64.zip`(인텔)을 받아 압축 해제.
-2. **Sync Pathguard.app** 을 `/Applications`로 이동.
+2. **Pathguard.app** 을 `/Applications`로 이동.
 3. quarantine 제거 후 실행:
 
    ```bash
-   xattr -dr com.apple.quarantine "/Applications/Sync Pathguard.app"
-   open "/Applications/Sync Pathguard.app"
+   xattr -dr com.apple.quarantine "/Applications/Pathguard.app"
+   open "/Applications/Pathguard.app"
    ```
 
    터미널 없이: 앱 우클릭 → **열기** → **열기**. 최신 macOS는
    시스템 설정 → 개인정보 보호 및 보안 → **그래도 열기**.
 
-**Windows — 수동 설치:** `Sync-Pathguard-windows-amd64.zip` 받아 압축 해제, `Sync Pathguard.exe` 실행.
+**Windows — 수동 설치:** `Pathguard-windows-amd64.zip` 받아 압축 해제, `Pathguard.exe` 실행.
 SmartScreen 경고 시: **추가 정보 → 실행**.
 
 **소스에서 빌드** (모든 OS, Go 1.25+ 필요):
 
 ```bash
-git clone https://github.com/msjang/sync-pathguard.git
-cd sync-pathguard
-go run ./cmd/sync-pathguard      # 또는: scripts/build.sh → bin/sync-pathguard
+git clone https://github.com/msjang/pathguard.git
+cd pathguard
+go run ./cmd/pathguard-gui      # 또는: scripts/build.sh → bin/pathguard
 ```
 
 설정 파일 위치:
 
-- macOS: `~/Library/Application Support/sync-pathguard/config.yml`
-- Windows: `%APPDATA%\sync-pathguard\config.yml`
-- Linux: `~/.config/sync-pathguard/config.yml`
+- macOS: `~/Library/Application Support/pathguard/config.yml`
+- Windows: `%APPDATA%\pathguard\config.yml`
+- Linux: `~/.config/pathguard/config.yml`
 
 ### CLI (Go)
 

@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/msjang/sync-pathguard/internal/config"
-	"github.com/msjang/sync-pathguard/internal/scan"
+	"github.com/msjang/pathguard/internal/config"
+	"github.com/msjang/pathguard/internal/scan"
 )
 
 func main() {

@@ -25,7 +25,7 @@ var catalog = map[string]map[Lang]string{
 	"status_idle":    {EN: "Not scanned yet", KO: "아직 검사 안 함"},
 	"status_scan":    {EN: "Scanning…", KO: "검사 중…"},
 	"status_clean":   {EN: "All within limits", KO: "모두 정상"},
-	"tooltip":        {EN: "Sync Pathguard", KO: "Sync Pathguard"},
+	"tooltip":        {EN: "Pathguard", KO: "Pathguard"},
 	"scan_no_folder": {EN: "No watch folder configured", KO: "감시 폴더가 설정되지 않음"},
 }
 

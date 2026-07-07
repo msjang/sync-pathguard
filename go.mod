@@ -1,4 +1,4 @@
-module github.com/msjang/sync-pathguard
+module github.com/msjang/pathguard
 
 go 1.25.0
 

@@ -1,5 +1,5 @@
 // Package scan implements the read-only NFD byte-length check that is the core
-// of Sync Pathguard. It mirrors the reference pathguard.py: every file/dir name
+// of Pathguard. It mirrors the reference pathguard.py: every file/dir name
 // and full (remote) path is measured as UTF-8 bytes after NFD normalization —
 // the worst case for combining-mark scripts like Korean.
 package scan

@@ -1,14 +1,14 @@
-# Sync Pathguard
+# Pathguard
 
-[English](README.md) · [한국어](README.ko.md)
+[🇺🇸 English](README.md) · [🇰🇷 한국어](README.ko.md)
 
 > A read-only watcher that catches filenames which will **silently break your cloud/NAS sync** — before they do.
 
-[![CI](https://github.com/msjang/sync-pathguard/actions/workflows/ci.yml/badge.svg)](https://github.com/msjang/sync-pathguard/actions/workflows/ci.yml)
+[![CI](https://github.com/msjang/pathguard/actions/workflows/ci.yml/badge.svg)](https://github.com/msjang/pathguard/actions/workflows/ci.yml)
 ![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
-sync-pathguard scans a synced folder (Synology Drive · Dropbox · Nextcloud · OneDrive · iCloud Drive,
+pathguard scans a synced folder (Synology Drive · Dropbox · Nextcloud · OneDrive · iCloud Drive,
 etc.) and flags files whose **name or path byte length** may exceed the destination's `NAME_MAX` /
 `PATH_MAX` once Unicode is decomposed to **NFD** — a sync failure waiting to happen. It **only reads**;
 it never touches your files.
@@ -91,41 +91,41 @@ menu-bar agent — look for the ruler icon, there's no Dock icon.
 
 ```bash
 brew tap msjang/tap
-brew install --cask sync-pathguard   # clears the quarantine flag for you
+brew install --cask pathguard   # clears the quarantine flag for you
 ```
 
 **macOS — manual:** because the app is unsigned, macOS blocks it with "can't be
 opened" until you remove the quarantine flag.
 
-1. From [Releases](../../releases), download `Sync-Pathguard-macos-arm64.zip`
+1. From [Releases](../../releases), download `Pathguard-macos-arm64.zip`
    (Apple Silicon) or `-amd64.zip` (Intel) and unzip it.
-2. Move **Sync Pathguard.app** to `/Applications`.
+2. Move **Pathguard.app** to `/Applications`.
 3. Clear quarantine and open:
 
    ```bash
-   xattr -dr com.apple.quarantine "/Applications/Sync Pathguard.app"
-   open "/Applications/Sync Pathguard.app"
+   xattr -dr com.apple.quarantine "/Applications/Pathguard.app"
+   open "/Applications/Pathguard.app"
    ```
 
    Or without Terminal: right-click the app → **Open** → **Open**; on recent
    macOS go to System Settings → Privacy & Security → **Open Anyway**.
 
-**Windows — manual:** download `Sync-Pathguard-windows-amd64.zip`, unzip, run
-`Sync Pathguard.exe`. If SmartScreen warns: **More info → Run anyway**.
+**Windows — manual:** download `Pathguard-windows-amd64.zip`, unzip, run
+`Pathguard.exe`. If SmartScreen warns: **More info → Run anyway**.
 
 **Build from source** (any OS, requires Go 1.25+):
 
 ```bash
-git clone https://github.com/msjang/sync-pathguard.git
-cd sync-pathguard
-go run ./cmd/sync-pathguard      # or: scripts/build.sh → bin/sync-pathguard
+git clone https://github.com/msjang/pathguard.git
+cd pathguard
+go run ./cmd/pathguard-gui      # or: scripts/build.sh → bin/pathguard
 ```
 
 Config file location:
 
-- macOS: `~/Library/Application Support/sync-pathguard/config.yml`
-- Windows: `%APPDATA%\sync-pathguard\config.yml`
-- Linux: `~/.config/sync-pathguard/config.yml`
+- macOS: `~/Library/Application Support/pathguard/config.yml`
+- Windows: `%APPDATA%\pathguard\config.yml`
+- Linux: `~/.config/pathguard/config.yml`
 
 ### CLI (Go)
 

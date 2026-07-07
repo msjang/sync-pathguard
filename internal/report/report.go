@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/msjang/sync-pathguard/internal/scan"
+	"github.com/msjang/pathguard/internal/scan"
 )
 
 // trimChars estimates how many Korean characters to cut to get under the limit.
@@ -26,13 +26,13 @@ func trimChars(overBytes int) int {
 // Write renders res to an HTML file and returns its path.
 func Write(res scan.Result, nameMax, pathMax int) (string, error) {
 	var b strings.Builder
-	b.WriteString(`<!doctype html><meta charset="utf-8"><title>Sync Pathguard report</title>`)
+	b.WriteString(`<!doctype html><meta charset="utf-8"><title>Pathguard report</title>`)
 	b.WriteString(`<style>body{font:14px system-ui,sans-serif;margin:2rem;max-width:60rem}` +
 		`h1{font-size:1.3rem}h2{margin-top:2rem}table{border-collapse:collapse;width:100%}` +
 		`th,td{border:1px solid #ccc;padding:.3rem .5rem;text-align:left}` +
 		`td.n{text-align:right;font-variant-numeric:tabular-nums}` +
 		`.over{color:#ea4335;font-weight:600}</style>`)
-	b.WriteString("<h1>Sync Pathguard — scan report</h1>")
+	b.WriteString("<h1>Pathguard — scan report</h1>")
 	fmt.Fprintf(&b, "<p>Total scanned: %d · name over: %d · name warn: %d · path over: %d · path warn: %d</p>",
 		res.Total, len(res.NameOver), len(res.NameWarn), len(res.PathOver), len(res.PathWarn))
 
@@ -78,7 +78,7 @@ func Write(res scan.Result, nameMax, pathMax int) (string, error) {
 	pathTable("PATH_MAX over", res.PathOver)
 	pathTable("PATH_MAX warnings", res.PathWarn)
 
-	path := filepath.Join(os.TempDir(), "sync-pathguard-report.html")
+	path := filepath.Join(os.TempDir(), "pathguard-report.html")
 	if err := os.WriteFile(path, []byte(b.String()), 0o644); err != nil {
 		return "", err
 	}

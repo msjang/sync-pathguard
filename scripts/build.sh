@@ -9,9 +9,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 mkdir -p bin
-out="bin/sync-pathguard"
+out="bin/pathguard-gui"
 [ "$(go env GOOS)" = "windows" ] && out="${out}.exe"
 
-echo "Building Sync Pathguard for $(go env GOOS)/$(go env GOARCH)…"
-go build -o "$out" ./cmd/sync-pathguard
+echo "Building Pathguard for $(go env GOOS)/$(go env GOARCH)…"
+go build -o "$out" ./cmd/pathguard-gui
 echo "→ $out"

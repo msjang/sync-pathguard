@@ -35,7 +35,7 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            dist/Sync-Pathguard-macos-${{ matrix.arch }}.zip
+            dist/Pathguard-macos-${{ matrix.arch }}.zip
             dist/pathguard-macos-${{ matrix.arch }}.zip
 
   windows:
@@ -51,13 +51,13 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
-          go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/Sync Pathguard.exe" ./cmd/sync-pathguard
+          go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/Pathguard.exe" ./cmd/pathguard-gui
           go build -trimpath -ldflags "-s -w" -o "dist/pathguard.exe" ./cmd/pathguard
-          Compress-Archive -Path "dist/Sync Pathguard.exe","dist/pathguard.exe" -DestinationPath "dist/Sync-Pathguard-windows-amd64.zip" -Force
+          Compress-Archive -Path "dist/Pathguard.exe","dist/pathguard.exe" -DestinationPath "dist/Pathguard-windows-amd64.zip" -Force
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: dist/Sync-Pathguard-windows-amd64.zip
+          files: dist/Pathguard-windows-amd64.zip
 
   linux-cli:
     runs-on: ubuntu-latest
