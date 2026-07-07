@@ -49,8 +49,10 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 PLIST
 
 echo "Zipping…"
+# App and CLI zip names must differ by more than case (GitHub asset names collide
+# case-insensitively), hence the "-cli-" in the CLI zip.
 ditto -c -k --keepParent "$APP" "dist/Pathguard-macos-universal.zip"
-( cd dist && zip -q "pathguard-macos-universal.zip" pathguard )
+( cd dist && zip -q "pathguard-cli-macos-universal.zip" pathguard )
 
 echo "→ dist/Pathguard-macos-universal.zip"
-echo "→ dist/pathguard-macos-universal.zip"
+echo "→ dist/pathguard-cli-macos-universal.zip"
