@@ -5,6 +5,9 @@ name: Release
 # on both an Apple-Silicon and an Intel runner (no cross-compile). The pathguard
 # CLI is pure Go and cross-compiles for Linux.
 #
+# create-release runs first so the release exists before the build jobs upload
+# to it (avoids the concurrent-creation race).
+#
 # NOTE: builds are UNSIGNED (T-0015). macOS Gatekeeper / Windows SmartScreen will
 # warn until code signing + notarization is added; the Homebrew cask clears the
 # quarantine flag as a stopgap (see the msjang/homebrew-tap repo).
@@ -16,7 +19,15 @@ permissions:
   contents: write
 
 jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+
   macos:
+    needs: create-release
     strategy:
       fail-fast: false
       matrix:
@@ -33,12 +44,12 @@ jobs:
         run: bash scripts/package-macos.sh "${{ github.ref_name }}" "${{ matrix.arch }}"
       - uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
           files: |
             dist/Pathguard-macos-${{ matrix.arch }}.zip
             dist/pathguard-macos-${{ matrix.arch }}.zip
 
   windows:
+    needs: create-release
     runs-on: windows-latest
     env:
       CGO_ENABLED: "0"
@@ -48,18 +59,18 @@ jobs:
         with:
           go-version: "stable"
       - name: Build .exe + CLI
-        shell: pwsh
+        shell: bash
         run: |
-          New-Item -ItemType Directory -Force dist | Out-Null
+          mkdir -p dist
           go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/Pathguard.exe" ./cmd/pathguard-gui
           go build -trimpath -ldflags "-s -w" -o "dist/pathguard.exe" ./cmd/pathguard
-          Compress-Archive -Path "dist/Pathguard.exe","dist/pathguard.exe" -DestinationPath "dist/Pathguard-windows-amd64.zip" -Force
+          7z a "dist/Pathguard-windows-amd64.zip" "./dist/Pathguard.exe" "./dist/pathguard.exe"
       - uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
           files: dist/Pathguard-windows-amd64.zip
 
   linux-cli:
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -75,5 +86,4 @@ jobs:
           done
       - uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
           files: dist/pathguard-linux-*.tar.gz
