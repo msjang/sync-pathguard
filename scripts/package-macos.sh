@@ -1,26 +1,33 @@
 #!/usr/bin/env bash
-# Package the macOS build: a "Pathguard.app" menu-bar agent + the pathguard
-# CLI, zipped for release. Builds NATIVELY for the host arch (systray is cgo, so
-# CI runs this on both an arm64 and an amd64 runner — see .github/workflows).
+# Package the macOS build: a UNIVERSAL (arm64 + amd64) "Pathguard.app" menu-bar
+# agent plus a universal pathguard CLI, zipped for release.
 #
-# Usage: scripts/package-macos.sh [version] [arch-label]
+# The app is cgo (systray), so each arch is built with `clang -arch …` and
+# combined with lipo. This runs fine on a single Apple-Silicon runner, so we
+# don't depend on the scarce/slow Intel macOS runners.
+#
+# Usage: scripts/package-macos.sh [version]
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 VER="${1:-0.0.0-dev}"
 VER_NUM="${VER#v}"
-ARCH="${2:-$(go env GOARCH)}"
 
 APP="dist/Pathguard.app"
-rm -rf dist
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+rm -rf dist build
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" build
 
-echo "Building tray app (cgo, $(go env GOARCH))…"
-CGO_ENABLED=1 go build -trimpath -ldflags "-s -w" \
-	-o "$APP/Contents/MacOS/pathguard-gui" ./cmd/pathguard-gui
+echo "Building universal tray app (cgo: arm64 + amd64)…"
+CGO_ENABLED=1 GOARCH=arm64 CC="clang -arch arm64" \
+	go build -trimpath -ldflags "-s -w" -o build/gui-arm64 ./cmd/pathguard-gui
+CGO_ENABLED=1 GOARCH=amd64 CC="clang -arch x86_64" \
+	go build -trimpath -ldflags "-s -w" -o build/gui-amd64 ./cmd/pathguard-gui
+lipo -create -output "$APP/Contents/MacOS/pathguard-gui" build/gui-arm64 build/gui-amd64
 
-echo "Building CLI (pure Go)…"
-CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o dist/pathguard ./cmd/pathguard
+echo "Building universal CLI (pure Go)…"
+CGO_ENABLED=0 GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o build/cli-arm64 ./cmd/pathguard
+CGO_ENABLED=0 GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o build/cli-amd64 ./cmd/pathguard
+lipo -create -output dist/pathguard build/cli-arm64 build/cli-amd64
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -42,8 +49,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 PLIST
 
 echo "Zipping…"
-ditto -c -k --keepParent "$APP" "dist/Pathguard-macos-${ARCH}.zip"
-( cd dist && zip -q "pathguard-macos-${ARCH}.zip" pathguard )
+ditto -c -k --keepParent "$APP" "dist/Pathguard-macos-universal.zip"
+( cd dist && zip -q "pathguard-macos-universal.zip" pathguard )
 
-echo "→ dist/Pathguard-macos-${ARCH}.zip"
-echo "→ dist/pathguard-macos-${ARCH}.zip"
+echo "→ dist/Pathguard-macos-universal.zip"
+echo "→ dist/pathguard-macos-universal.zip"

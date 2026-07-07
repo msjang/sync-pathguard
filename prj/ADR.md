@@ -248,15 +248,18 @@ red일 때 "클릭→점프" 사라지던 구멍 해소. Linux reveal 한계는 
 ## ADR-0012 — 패키징·배포 형식
 **상태**: Accepted
 
-**맥락**: 실제 배포물을 어떤 형태로 낼지. systray=cgo라 교차컴파일 불가(ADR-0002).
+**맥락**: 실제 배포물을 어떤 형태로 낼지. systray=cgo라 "한 머신에서 전 타깃 교차컴파일"은 불가(ADR-0002).
+단, 같은 OS 내 arch 교차(cgo)는 `clang -arch`로 가능. GitHub의 Intel(macos-13) 러너는 큐가 길어 병목.
 
 **결정**:
 - **macOS**: `Pathguard.app`(메뉴바 에이전트 → `LSUIElement=true`, Dock 아이콘 없음),
-  번들 ID `io.github.msjang.pathguard`. **arch별 네이티브 빌드**(arm64=macos-14, amd64=macos-13 러너)로
-  각각 zip. 유니버설 lipo 대신 arch별 산출(교차 cgo 회피, 안정성 우선). 아이콘은 런타임 렌더라 `.icns` 불요.
-- **Windows**: `Pathguard.exe`(`-ldflags -H=windowsgui`로 콘솔 창 숨김), CGO 불요(systray win32는 순수 Go).
-- **CLI(`pathguard`)**: 순수 Go → Linux amd64/arm64 크로스빌드 포함 전 OS.
+  번들 ID `io.github.msjang.pathguard`. **유니버설 바이너리**(arm64 네이티브 + amd64 `clang -arch x86_64` cgo → `lipo`)를
+  **arm64 러너(macos-14) 하나**에서 산출 → `Pathguard-macos-universal.zip`. Intel 러너 의존 제거. 아이콘 런타임 렌더라 `.icns` 불요.
+- **Windows**: `Pathguard.exe`(`-ldflags -H=windowsgui`로 콘솔 숨김), CGO 불요(systray win32는 순수 Go).
+- **CLI(`pathguard`)**: 순수 Go → mac 유니버설 + Linux amd64/arm64 + Windows.
+- **CI 구조**: 각 job은 빌드만 → artifact 업로드, 마지막 `publish` job 하나가 릴리스에 몰아 업로드(동시 업로드 레이스 제거, Windows는 압축을 publish에서 하니 zip 도구 불요).
 - **서명**: 초기 릴리스는 **미서명**(Gatekeeper/SmartScreen 경고). 서명·공증은 T-0015.
 - **배포 채널**: GitHub Release(자동) + Homebrew **자체 tap** 우선(cask=앱, formula=CLI). 공식 cask는 공증 후.
 
 **결과**: `.dmg`는 선택(현재 zip). 미서명이라 tap cask에서 `xattr` quarantine 제거로 임시 대응.
+tap cask는 유니버설이라 arch 분기 없이 sha 1개.

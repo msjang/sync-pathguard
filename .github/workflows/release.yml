@@ -1,9 +1,9 @@
 name: Release
 
 # Push a version tag (e.g. v0.1.0) to build native binaries per OS and attach
-# them to a GitHub Release. systray is cgo, so the macOS app is built natively
-# on both an Apple-Silicon and an Intel runner (no cross-compile). The pathguard
-# CLI is pure Go and cross-compiles for Linux.
+# them to a GitHub Release. systray is cgo; the macOS app is built as a universal
+# binary on one Apple-Silicon runner (arm64 native + amd64 via clang -arch, lipo),
+# so no Intel runner is needed. The pathguard CLI is pure Go.
 #
 # Each build job only produces artifacts; a single `publish` job uploads them to
 # the release, so parallel jobs never race on the release and Windows needs no
@@ -21,23 +21,17 @@ permissions:
 
 jobs:
   macos:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { runner: macos-14, arch: arm64 }
-          - { runner: macos-13, arch: amd64 }
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-14 # Apple Silicon; builds a universal (arm64+amd64) app, no Intel runner needed
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: "stable"
-      - name: Package .app + CLI
-        run: bash scripts/package-macos.sh "${{ github.ref_name }}" "${{ matrix.arch }}"
+      - name: Package universal .app + CLI
+        run: bash scripts/package-macos.sh "${{ github.ref_name }}"
       - uses: actions/upload-artifact@v4
         with:
-          name: macos-${{ matrix.arch }}
+          name: macos
           path: dist/*.zip
 
   windows:

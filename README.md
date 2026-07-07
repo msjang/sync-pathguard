@@ -97,8 +97,8 @@ brew install --cask pathguard   # clears the quarantine flag for you
 **macOS — manual:** because the app is unsigned, macOS blocks it with "can't be
 opened" until you remove the quarantine flag.
 
-1. From [Releases](../../releases), download `Pathguard-macos-arm64.zip`
-   (Apple Silicon) or `-amd64.zip` (Intel) and unzip it.
+1. From [Releases](../../releases), download `Pathguard-macos-universal.zip`
+   (one build for both Apple Silicon and Intel) and unzip it.
 2. Move **Pathguard.app** to `/Applications`.
 3. Clear quarantine and open:
 
