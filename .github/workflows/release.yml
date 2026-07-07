@@ -5,8 +5,9 @@ name: Release
 # on both an Apple-Silicon and an Intel runner (no cross-compile). The pathguard
 # CLI is pure Go and cross-compiles for Linux.
 #
-# create-release runs first so the release exists before the build jobs upload
-# to it (avoids the concurrent-creation race).
+# Each build job only produces artifacts; a single `publish` job uploads them to
+# the release, so parallel jobs never race on the release and Windows needs no
+# zip tool of its own.
 #
 # NOTE: builds are UNSIGNED (T-0015). macOS Gatekeeper / Windows SmartScreen will
 # warn until code signing + notarization is added; the Homebrew cask clears the
@@ -19,15 +20,7 @@ permissions:
   contents: write
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-
   macos:
-    needs: create-release
     strategy:
       fail-fast: false
       matrix:
@@ -42,14 +35,12 @@ jobs:
           go-version: "stable"
       - name: Package .app + CLI
         run: bash scripts/package-macos.sh "${{ github.ref_name }}" "${{ matrix.arch }}"
-      - uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
         with:
-          files: |
-            dist/Pathguard-macos-${{ matrix.arch }}.zip
-            dist/pathguard-macos-${{ matrix.arch }}.zip
+          name: macos-${{ matrix.arch }}
+          path: dist/*.zip
 
   windows:
-    needs: create-release
     runs-on: windows-latest
     env:
       CGO_ENABLED: "0"
@@ -64,13 +55,12 @@ jobs:
           mkdir -p dist
           go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/Pathguard.exe" ./cmd/pathguard-gui
           go build -trimpath -ldflags "-s -w" -o "dist/pathguard.exe" ./cmd/pathguard
-          7z a "dist/Pathguard-windows-amd64.zip" "./dist/Pathguard.exe" "./dist/pathguard.exe"
-      - uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
         with:
-          files: dist/Pathguard-windows-amd64.zip
+          name: windows
+          path: dist/*.exe
 
   linux-cli:
-    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -84,6 +74,26 @@ jobs:
             CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build -trimpath -ldflags "-s -w" -o dist/pathguard ./cmd/pathguard
             (cd dist && tar czf "pathguard-linux-$arch.tar.gz" pathguard && rm pathguard)
           done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: dist/*.tar.gz
+
+  publish:
+    needs: [macos, windows, linux-cli]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Assemble release assets
+        run: |
+          mkdir -p dist
+          find artifacts -type f \( -name '*.zip' -o -name '*.tar.gz' \) -exec cp {} dist/ \;
+          # Zip the Windows binaries here (Linux has zip; the Windows runner does not need one).
+          ( cd artifacts/windows && zip -q "$GITHUB_WORKSPACE/dist/Pathguard-windows-amd64.zip" Pathguard.exe pathguard.exe )
+          ls -la dist
       - uses: softprops/action-gh-release@v2
         with:
-          files: dist/pathguard-linux-*.tar.gz
+          generate_release_notes: true
+          files: dist/*
